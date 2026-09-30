@@ -82,7 +82,10 @@ import SwiftUI
         try Organizer.preview(in: folder, rules: selectedRules)
       }.value
       UserDefaults.standard.set(try JSONEncoder().encode(rules), forKey: "rules")
-      status = plan.isEmpty ? "No files match your rules." : "\(plan.count) moves ready for review."
+      status =
+        plan.isEmpty
+        ? "No files match your rules."
+        : "\(plan.count) \(plan.count == 1 ? "move" : "moves") ready for review."
     } catch { self.error = error.localizedDescription }
   }
   private func saveJournal(_ next: [Move]) throws {
@@ -181,8 +184,10 @@ struct OrganizerView: View {
         HStack {
           VStack(alignment: .leading, spacing: 6) {
             Text("Keep your files in order.").font(.largeTitle.weight(.semibold))
-            Text(store.folder?.path ?? "Select the folder you want to organise.").font(.subheadline)
-              .foregroundColor(.secondary).textSelection(.enabled)
+            Text(store.folder?.lastPathComponent ?? "Select the folder you want to organise.").font(
+              .subheadline
+            )
+            .foregroundColor(.secondary).textSelection(.enabled)
           }
           Spacer()
           Button("Choose Folder…") { store.choose() }
@@ -225,7 +230,9 @@ struct OrganizerView: View {
             store.plan.isEmpty || store.busy)
         }
       }.padding(28)
-    }.alert("Move \(store.plan.count) files?", isPresented: $confirm) {
+    }.alert(
+      "Move \(store.plan.count) \(store.plan.count == 1 ? "file" : "files")?", isPresented: $confirm
+    ) {
       Button("Cancel", role: .cancel) {}
       Button("Move files") { Task { await store.apply() } }
     } message: {
